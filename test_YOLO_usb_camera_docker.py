@@ -8,21 +8,17 @@ from ultralytics import YOLO
 # Load the exported TensorRT model
 trt_model = YOLO("yolov8n.engine")
 
-gst_pipeline = (
-    "nvarguscamerasrc ! "
-    "video/x-raw(memory:NVMM), width=1280, height=720, framerate=30/1 ! "
-    "nvvidconv ! "
-    "video/x-raw, format=BGRx ! "
-    "videoconvert ! "
-    "video/x-raw, format=BGR ! appsink"
-)
+# Try 0, then 1, 2... if it doesn't open
+cap = cv2.VideoCapture(1)
 
-cap = cv2.VideoCapture(gst_pipeline, cv2.CAP_GSTREAMER)
+# Optional: set resolution (C270 often supports 640x480 well)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 
 if not cap.isOpened():
-    raise RuntimeError("Cannot open IMX219 camera")
+    raise RuntimeError("Could not open webcam. Try changing the device index (0/1/2...).")
 
-fps = 0.0      
+fps = 0.0    
 
 while True:
     t0 = time.time()
@@ -32,7 +28,7 @@ while True:
 
     # Run inference
     results = trt_model(frame)
-    t1 = time.time()     
+    t1 = time.time()
 
     infer_fps = 1.0 / (t1 - t0)
     # Smooth FPS display (optional but recommended)
@@ -42,7 +38,7 @@ while True:
     # Annotated visualization frame (BGR)
     annotated = results[0].plot()
 
-    cv2.imshow("IMX219-YOLO", annotated)
+    cv2.imshow("Webcam-YOLO", annotated)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
