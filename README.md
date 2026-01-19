@@ -1,13 +1,13 @@
 # cs4391_spring26
 
-# docker commands
+# docker command to start ultralytics YOLO
 
 xhost +local:
 
 sudo docker run -it --rm \
   --ipc=host --runtime=nvidia \
   --network host \
-  --device=/dev/video1:/dev/video1 \
+  --device=/dev/video0:/dev/video0 \
   -e DISPLAY=$DISPLAY \
   -e QT_X11_NO_MITSHM=1 \
   -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
@@ -15,6 +15,15 @@ sudo docker run -it --rm \
   -v /tmp/argus_socket:/tmp/argus_socket \
   ultralytics/ultralytics:latest-jetson-jetpack6-opencv
 
+## Test IMX219 camera
+```
+python test_imx219_camera_docker.py
+```
+
+## Test YOLO
+```
+python test_YOLO_imx219_docker.py
+```
 
 # Debug opencv
 OPENCV_LOG_LEVEL=DEBUG
